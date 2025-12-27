@@ -1,0 +1,100 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "KV Studio",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "KV Studio",
+        "width": 100,
+        "height": 100
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Features",
+          "url": "/#features",
+          "icon": "Sparkles"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "Billing",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "Activity",
+          "url": "/activity",
+          "icon": "Activity"
+        }
+      ]
+    },
+    "show_sign": false,
+    "show_theme": true,
+    "show_locale": true,
+    "topbanner": {
+      "text": ""
+    }
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "KV Studio",
+      "description": "KV Studio — a creative studio for key visuals, branding, and product design.",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "KV Studio",
+        "width": 1024,
+        "height": 1024
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "About",
+          "children": [
+            {
+              "title": "Features",
+              "url": "/#features",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "Email",
+          "icon": "Mail",
+          "url": "mailto:support@kvstudio.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Privacy Policy",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Terms of Service",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  }
+}

@@ -1,0 +1,66 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: ['main', 'dev']
+  pull_request:
+    branches: ['main', 'dev']
+  workflow_dispatch:
+    inputs:
+      database_provider:
+        description: 'Build-time DATABASE_PROVIDER for schema alias (postgresql/mysql/sqlite/turso)'
+        required: false
+        default: 'postgresql'
+        type: choice
+        options:
+          - postgresql
+          - mysql
+          - sqlite
+          - turso
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  SVR_NAME: ${{ github.event.repository.name }}
+  # Change the fallback value ('postgresql') to switch the default build dialect for push/PR builds.
+  # Manual workflow_dispatch can still override it via inputs.
+  DATABASE_PROVIDER: ${{ github.event.inputs.database_provider || 'postgresql' }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            DATABASE_PROVIDER=${{ env.DATABASE_PROVIDER }}

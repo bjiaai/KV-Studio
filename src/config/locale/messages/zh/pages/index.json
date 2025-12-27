@@ -1,0 +1,419 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "features",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "title": "用一套 KV 视觉，讲清你的品牌",
+        "highlight_text": "KV 视觉",
+        "description": "KV Studio 专注于 Key Visual、品牌与产品视觉设计。<br/>帮助你把概念落地为清晰、有冲击力的视觉系统。",
+        "announcement": {
+          "badge": "Studio",
+          "title": "KV Studio",
+          "url": "/#features"
+        },
+        "tip": "从概念到视觉系统",
+        "buttons": [
+          {
+            "title": "查看服务",
+            "icon": "Zap",
+            "url": "/#features",
+            "target": "_self",
+            "variant": "default"
+          },
+          {
+            "title": "联系邮箱",
+            "icon": "BookOpenText",
+            "url": "mailto:support@kvstudio.com",
+            "target": "_self",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "avatars_tip": "",
+        "show_award": false,
+        "image": {
+          "src": "https://picsum.photos/1200/800?random=31",
+          "alt": "hero",
+          "width": 1200,
+          "height": 800
+        },
+        "image_invert": {
+          "src": "https://picsum.photos/1200/800?random=32",
+          "alt": "hero",
+          "width": 1200,
+          "height": 800
+        },
+        "background_image": {
+          "src": "https://picsum.photos/1600/900?random=33",
+          "alt": "hero"
+        }
+      },
+      "logos": {
+        "title": "ShipAny 使用以下技术栈构建",
+        "items": [
+          {
+            "title": "Next.js",
+            "image": {
+              "src": "/imgs/logos/nextjs.svg",
+              "alt": "Next.js"
+            }
+          },
+          {
+            "title": "React",
+            "image": {
+              "src": "/imgs/logos/react.svg",
+              "alt": "React"
+            }
+          },
+          {
+            "title": "TailwindCSS",
+            "image": {
+              "src": "/imgs/logos/tailwindcss.svg",
+              "alt": "TailwindCSS"
+            }
+          },
+          {
+            "title": "Shadcn/UI",
+            "image": {
+              "src": "/imgs/logos/shadcn.svg",
+              "alt": "Shadcn/UI"
+            }
+          },
+          {
+            "title": "Vercel",
+            "image": {
+              "src": "/imgs/logos/vercel.svg",
+              "alt": "Vercel"
+            }
+          }
+        ]
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "KV Studio 是什么？",
+        "label": "产品简介",
+        "description": "KV Studio 帮助团队与创作者建立一致的视觉语言，用于活动、产品与品牌的持续表达。",
+        "image": {
+          "src": "https://picsum.photos/1200/800?random=34",
+          "alt": "introduce"
+        },
+        "items": [
+          {
+            "title": "KV 视觉方向",
+            "description": "建立强有力的视觉概念，并扩展为可复用的 KV 系统。",
+            "icon": "RiNextjsFill",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=35",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "品牌视觉识别",
+            "description": "从字体、色彩到版式规则，建立可长期使用的视觉基础。",
+            "icon": "RiDatabase2Line",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=36",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "产品视觉设计",
+            "description": "面向产品 UI 与营销素材的视觉设计，让表达更清晰、更精致。",
+            "icon": "RiCloudyFill",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=37",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "可交付资产",
+            "description": "提供可复用组件、清晰规范与可直接落地的交付包。",
+            "icon": "RiRobot2Line",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=38",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "为什么选择 KV Studio",
+        "label": "产品优势",
+        "description": "以结构化流程加速协作，同时保持高质量与一致性。",
+        "items": [
+          {
+            "title": "一致的视觉系统",
+            "description": "把方向转化为可复用组件与规则，方便团队持续产出。",
+            "icon": "RiNextjsFill",
+            "image": {
+              "src": "https://picsum.photos/1200/800?random=39",
+              "alt": "benefits"
+            }
+          },
+          {
+            "title": "对齐品牌调性",
+            "description": "在字体、色彩、构图上保持统一，让每个触点更专业。",
+            "icon": "RiClapperboardAiLine",
+            "image": {
+              "src": "https://picsum.photos/1200/800?random=40",
+              "alt": "benefits"
+            }
+          },
+          {
+            "title": "高效协作",
+            "description": "明确里程碑与交付节奏，减少反复沟通成本。",
+            "icon": "RiCodeFill",
+            "image": {
+              "src": "https://picsum.photos/1200/800?random=41",
+              "alt": "benefits"
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "三步使用 ShipAny 极速上线",
+        "description": "只需三步，快速开启你的 AI SaaS 创业之路：",
+        "image": {
+          "src": "/imgs/features/1.png",
+          "alt": "usage"
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "获取 ShipAny",
+            "description": "一次性购买 ShipAny，查收邮件获取代码与文档。",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage"
+            }
+          },
+          {
+            "title": "启动你的项目",
+            "description": "阅读说明文档，克隆 ShipAny 代码，开始开发你的 AI SaaS 项目。",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage"
+            }
+          },
+          {
+            "title": "个性化定制",
+            "description": "根据需求修改模板内容和数据，配置专属 AI 能力。",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          },
+          {
+            "title": "部署上线",
+            "description": "简单几步将你的项目推向生产环境，立刻为客户提供服务。",
+            "image": {
+              "src": "/imgs/features/8.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "服务范围",
+        "description": "用精简明确的服务组合，帮助你建立并扩展视觉表达。",
+        "items": [
+          {
+            "title": "Key Visual（KV）",
+            "description": "适用于发布/活动的 KV 系统与延展应用。",
+            "icon": "RiNextjsFill"
+          },
+          {
+            "title": "品牌设计",
+            "description": "Logo、字体、色彩与版式规范，覆盖多渠道触点。",
+            "icon": "RiKey2Fill"
+          },
+          {
+            "title": "产品视觉设计",
+            "description": "面向产品 UI 与营销素材的视觉设计，提升清晰度与质感。",
+            "icon": "RiDatabase2Line"
+          },
+          {
+            "title": "设计系统",
+            "description": "可复用组件与视觉规则，确保持续一致输出。",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "规范与交付",
+            "description": "整理交付文件与使用说明，方便团队快速落地。",
+            "icon": "RiBarChart2Line"
+          },
+          {
+            "title": "持续支持",
+            "description": "面向新产品、新活动、新渠道的迭代更新。",
+            "icon": "RiRobot2Line"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "用户喜爱 ShipAny",
+        "description": "因其易用且上线飞快。",
+        "items": [
+          {
+            "title": "999+",
+            "description": "位用户"
+          },
+          {
+            "title": "200+",
+            "description": "组件块"
+          },
+          {
+            "title": "50+",
+            "description": "专业模板"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "testimonials": {
+        "id": "testimonials",
+        "title": "用户对 ShipAny 的评价",
+        "description": "听听开发者与创始人用 ShipAny 快速上线 AI 创业项目的故事。",
+        "items": [
+          {
+            "name": "David Chen",
+            "role": "AIWallpaper.shop 创始人",
+            "quote": "ShipAny 为我们节省了数月开发时间。2 天上线 AI 壁纸业务，一周内就收到了第一笔付费订单！",
+            "image": {
+              "src": "/imgs/avatars/1.png",
+              "alt": "david"
+            }
+          },
+          {
+            "name": "Rachel Kim",
+            "role": "HeyBeauty.ai CTO",
+            "quote": "内置 AI 基础设施颠覆了开发体验，无需担心架构，只需专注核心功能，极快落地。",
+            "image": {
+              "src": "/imgs/avatars/2.png",
+              "alt": "rachel"
+            }
+          },
+          {
+            "name": "Marcus Thompson",
+            "role": "独立开发者",
+            "quote": "作为独立开发者，ShipAny 满足了全部需求——认证、支付、AI 集成、美观界面，一个周末上线 SaaS！",
+            "image": {
+              "src": "/imgs/avatars/3.png",
+              "alt": "marcus"
+            }
+          },
+          {
+            "name": "Sofia Garcia",
+            "role": "Melodisco CEO",
+            "quote": "模板高度可定制且生产级。我们几小时内搭建出了 AI 音乐平台，上市周期大大缩短！",
+            "image": {
+              "src": "/imgs/avatars/4.png",
+              "alt": "sofia"
+            }
+          },
+          {
+            "name": "James Wilson",
+            "role": "GPTs.works 技术负责人",
+            "quote": "ShipAny 基础设施极其稳定。我们从 0 到 1 万用户，无需关心后端维护，是最棒的 AI 创业投资。",
+            "image": {
+              "src": "/imgs/avatars/5.png",
+              "alt": "james"
+            }
+          },
+          {
+            "name": "Anna Zhang",
+            "role": "创业者",
+            "quote": "从想法到上线，仅用 3 天！ShipAny 模板和部署工具让我们极快验证 AI 商业创意。",
+            "image": {
+              "src": "/imgs/avatars/6.png",
+              "alt": "anna"
+            }
+          }
+        ]
+      },
+      "faq": {
+        "id": "faq",
+        "title": "常见问题",
+        "description": "如有疑问，欢迎邮件联系。",
+        "items": [
+          {
+            "question": "你们主要做哪些类型的项目？",
+            "answer": "我们专注于 KV 视觉、品牌设计、产品视觉设计与视觉系统，用于发布活动与长期品牌建设。"
+          },
+          {
+            "question": "合作流程通常是怎样的？",
+            "answer": "我们会先对齐目标与参考，提出视觉方向，按里程碑迭代，并交付可直接落地的素材与文件。"
+          },
+          {
+            "question": "会提供源文件与交付规范吗？",
+            "answer": "会。可根据需求提供可编辑源文件与交付说明/规范。"
+          },
+          {
+            "question": "项目周期一般多久？",
+            "answer": "取决于范围。可以支持短周期活动，也可以做更完整的品牌系统项目。"
+          },
+          {
+            "question": "如何开始合作？",
+            "answer": "请发邮件至 support@kvstudio.com，附上目标、时间表与参考资料。"
+          },
+          {
+            "question": "是否支持远程/跨地区合作？",
+            "answer": "支持。可远程协作，并按你的渠道与市场需求优化交付。"
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "一起做一套有说服力的 KV 视觉",
+        "description": "告诉我们你的发布目标与想表达的核心信息，我们来把它变成视觉系统。",
+        "buttons": [
+          {
+            "title": "邮件联系",
+            "url": "mailto:support@kvstudio.com",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "查看服务",
+            "url": "/#features",
+            "target": "_self",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "订阅我们的邮件通知",
+        "description": "获取 ShipAny 最新资讯与产品动态。",
+        "submit": {
+          "input": {
+            "placeholder": "输入邮箱"
+          },
+          "button": {
+            "title": "订阅"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}

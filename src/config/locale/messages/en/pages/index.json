@@ -1,0 +1,420 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "features",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "id": "hero",
+        "title": "Design key visuals that ship your brand",
+        "highlight_text": "key visuals",
+        "description": "KV Studio is a creative studio focused on key visuals, branding, and product design.<br/>We help you turn concepts into clear, high-impact visuals.",
+        "announcement": {
+          "badge": "Studio",
+          "title": "KV Studio",
+          "url": "/#features"
+        },
+        "tip": "From concept to visual system",
+        "buttons": [
+          {
+            "title": "Explore Services",
+            "icon": "Zap",
+            "url": "/#features",
+            "target": "_self",
+            "variant": "default"
+          },
+          {
+            "title": "Contact Us",
+            "icon": "BookOpenText",
+            "url": "mailto:support@kvstudio.com",
+            "target": "_self",
+            "variant": "outline"
+          }
+        ],
+        "show_avatars": false,
+        "avatars_tip": "",
+        "show_award": false,
+        "image": {
+          "src": "https://picsum.photos/1200/800?random=11",
+          "alt": "hero",
+          "width": 1200,
+          "height": 800
+        },
+        "image_invert": {
+          "src": "https://picsum.photos/1200/800?random=12",
+          "alt": "hero",
+          "width": 1200,
+          "height": 800
+        },
+        "background_image": {
+          "src": "https://picsum.photos/1600/900?random=13",
+          "alt": "hero"
+        }
+      },
+      "logos": {
+        "id": "logos",
+        "title": "ShipAny is built on the shoulders of giants",
+        "items": [
+          {
+            "title": "Next.js",
+            "image": {
+              "src": "/imgs/logos/nextjs.svg",
+              "alt": "Next.js"
+            }
+          },
+          {
+            "title": "React",
+            "image": {
+              "src": "/imgs/logos/react.svg",
+              "alt": "React"
+            }
+          },
+          {
+            "title": "TailwindCSS",
+            "image": {
+              "src": "/imgs/logos/tailwindcss.svg",
+              "alt": "TailwindCSS"
+            }
+          },
+          {
+            "title": "Shadcn/UI",
+            "image": {
+              "src": "/imgs/logos/shadcn.svg",
+              "alt": "Shadcn/UI"
+            }
+          },
+          {
+            "title": "Vercel",
+            "image": {
+              "src": "/imgs/logos/vercel.svg",
+              "alt": "Vercel"
+            }
+          }
+        ]
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "What is KV Studio",
+        "label": "Introduce",
+        "description": "KV Studio helps teams and creators build a consistent visual language across campaigns, products, and brands.",
+        "image": {
+          "src": "https://picsum.photos/1200/800?random=14",
+          "alt": "introduce"
+        },
+        "items": [
+          {
+            "title": "Key Visual Direction",
+            "description": "Define a strong visual concept and translate it into a cohesive KV system.",
+            "icon": "RiNextjsFill",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=15",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Brand Identity",
+            "description": "Build visual identity elements that stay consistent from digital to print.",
+            "icon": "RiDatabase2Line",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=16",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Product Visual Design",
+            "description": "Design polished UI visuals and marketing assets that support product clarity.",
+            "icon": "RiCloudyFill",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=17",
+              "alt": "introduce"
+            }
+          },
+          {
+            "title": "Delivery-ready Assets",
+            "description": "Export-ready files, clear specs, and reusable components for your team.",
+            "icon": "RiRobot2Line",
+            "image": {
+              "src": "https://picsum.photos/800/600?random=18",
+              "alt": "introduce"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "Why work with KV Studio",
+        "label": "Benefits",
+        "description": "A structured process that helps you move faster while keeping craft and consistency high.",
+        "items": [
+          {
+            "title": "Clear visual systems",
+            "description": "We translate direction into reusable components so your visuals stay consistent.",
+            "icon": "RiNextjsFill",
+            "image": {
+              "src": "https://picsum.photos/1200/800?random=19",
+              "alt": "benefits"
+            }
+          },
+          {
+            "title": "On-brand execution",
+            "description": "We keep typography, color, and composition aligned across every deliverable.",
+            "icon": "RiClapperboardAiLine",
+            "image": {
+              "src": "https://picsum.photos/1200/800?random=20",
+              "alt": "benefits"
+            }
+          },
+          {
+            "title": "Fast collaboration",
+            "description": "Iterate quickly with clear milestones and predictable handoffs.",
+            "icon": "RiCodeFill",
+            "image": {
+              "src": "https://picsum.photos/1200/800?random=21",
+              "alt": "benefits"
+            }
+          }
+        ]
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "How to Launch with ShipAny",
+        "description": "Get your AI SaaS startup running in three simple steps:",
+        "image": {
+          "src": "/imgs/features/1.png",
+          "alt": "usage"
+        },
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "Get ShipAny",
+            "description": "Buy ShipAny with a one-time payment. Check your email for the code and documentation.",
+            "image": {
+              "src": "/imgs/features/5.png",
+              "alt": "usage"
+            }
+          },
+          {
+            "title": "Start Your Project",
+            "description": "Read the documentation and clone the code of ShipAny. Start building your AI SaaS startup.",
+            "image": {
+              "src": "/imgs/features/6.png",
+              "alt": "usage"
+            }
+          },
+          {
+            "title": "Customize Your Project",
+            "description": "Modify the template with your data and contents. Specific AI functionality needs.",
+            "image": {
+              "src": "/imgs/features/7.png",
+              "alt": "usage"
+            }
+          },
+          {
+            "title": "Deploy to Production",
+            "description": "Deploy your project to production with a few steps and start serving customers immediately.",
+            "image": {
+              "src": "/imgs/features/8.png",
+              "alt": "usage"
+            }
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "features": {
+        "id": "features",
+        "title": "Services",
+        "description": "A focused set of services to help you build and scale your visual presence.",
+        "items": [
+          {
+            "title": "Key Visual (KV)",
+            "description": "Campaign-ready KV systems for product launches and brand moments.",
+            "icon": "RiNextjsFill"
+          },
+          {
+            "title": "Branding",
+            "description": "Logo, typography, color, and layout rules that work across channels.",
+            "icon": "RiKey2Fill"
+          },
+          {
+            "title": "Product Visual Design",
+            "description": "Visual design for product UI and marketing assets to improve clarity and polish.",
+            "icon": "RiDatabase2Line"
+          },
+          {
+            "title": "Design Systems",
+            "description": "Reusable components and guidelines for consistent execution.",
+            "icon": "RiCloudy2Fill"
+          },
+          {
+            "title": "Guidelines & Handoff",
+            "description": "Organized deliverables and specs so teams can ship with confidence.",
+            "icon": "RiBarChart2Line"
+          },
+          {
+            "title": "Ongoing Support",
+            "description": "Iterative updates for new campaigns, products, and channels.",
+            "icon": "RiRobot2Line"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "People Love ShipAny",
+        "description": "for it's easy to use and fast to ship.",
+        "items": [
+          {
+            "title": "999+",
+            "description": "Customers"
+          },
+          {
+            "title": "200+",
+            "description": "Blocks"
+          },
+          {
+            "title": "50+",
+            "description": "Templates"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "testimonials": {
+        "id": "testimonials",
+        "title": "What Users Say About ShipAny",
+        "description": "Hear from developers and founders who launched their AI startups with ShipAny.",
+        "items": [
+          {
+            "name": "David Chen",
+            "role": "Founder of AIWallpaper.shop",
+            "quote": "ShipAny saved us months of development time. We launched our AI wallpaper business in just 2 days and got our first paying customer within a week!",
+            "image": {
+              "src": "/imgs/avatars/1.png",
+              "alt": "david"
+            }
+          },
+          {
+            "name": "Rachel Kim",
+            "role": "CTO at HeyBeauty.ai",
+            "quote": "The pre-built AI infrastructure is a game-changer. We didn't have to worry about architecture - just focused on our AI beauty tech and went live fast.",
+            "image": {
+              "src": "/imgs/avatars/2.png",
+              "alt": "rachel"
+            }
+          },
+          {
+            "name": "Marcus Thompson",
+            "role": "Solo Developer",
+            "quote": "As a solo developer, ShipAny gave me everything I needed - auth, payments, AI integration, and beautiful UI. Launched my SaaS in a weekend!",
+            "image": {
+              "src": "/imgs/avatars/3.png",
+              "alt": "marcus"
+            }
+          },
+          {
+            "name": "Sofia Garcia",
+            "role": "CEO of Melodisco",
+            "quote": "The templates are production-ready and highly customizable. We built our AI music platform in hours instead of months. Incredible time-to-market!",
+            "image": {
+              "src": "/imgs/avatars/4.png",
+              "alt": "sofia"
+            }
+          },
+          {
+            "name": "James Wilson",
+            "role": "Tech Lead at GPTs.works",
+            "quote": "ShipAny's infrastructure is rock-solid. We scaled from 0 to 10k users without touching the backend. Best investment for our AI startup.",
+            "image": {
+              "src": "/imgs/avatars/5.png",
+              "alt": "james"
+            }
+          },
+          {
+            "name": "Anna Zhang",
+            "role": "Startup Founder",
+            "quote": "From idea to launch in 3 days! ShipAny's templates and deployment tools made it possible to test our AI business concept incredibly fast.",
+            "image": {
+              "src": "/imgs/avatars/6.png",
+              "alt": "anna"
+            }
+          }
+        ]
+      },
+      "faq": {
+        "id": "faq",
+        "title": "Frequently asked questions",
+        "description": "Have another question? Email us.",
+        "items": [
+          {
+            "question": "What kind of projects do you work on?",
+            "answer": "We work on key visuals, branding, product visual design, and visual systems for launches and long-term brand building."
+          },
+          {
+            "question": "What’s your typical process?",
+            "answer": "We align on goals and references, propose a visual direction, iterate with clear milestones, and deliver production-ready assets."
+          },
+          {
+            "question": "Do you provide source files and handoff specs?",
+            "answer": "Yes. Deliverables can include editable source files and documentation/guidelines based on your needs."
+          },
+          {
+            "question": "How long does a project take?",
+            "answer": "It depends on scope. We can support short, campaign-style timelines or longer brand system engagements."
+          },
+          {
+            "question": "How do we get started?",
+            "answer": "Email us at support@kvstudio.com with your goals, timeline, and references."
+          },
+          {
+            "question": "Do you work internationally?",
+            "answer": "Yes. We can collaborate remotely and deliver assets optimized for your channels and markets."
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "Let’s build your next key visual",
+        "description": "Tell us what you’re launching and what you want the visuals to communicate.",
+        "buttons": [
+          {
+            "title": "Email KV Studio",
+            "url": "mailto:support@kvstudio.com",
+            "target": "_self",
+            "icon": "Zap"
+          },
+          {
+            "title": "View Services",
+            "url": "/#features",
+            "target": "_self",
+            "variant": "outline",
+            "icon": "BookOpenText"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "subscribe": {
+        "id": "subscribe",
+        "title": "Subscribe to our newsletter",
+        "description": "Get the latest news and updates from ShipAny.",
+        "submit": {
+          "input": {
+            "placeholder": "Enter your email"
+          },
+          "button": {
+            "title": "Subscribe"
+          },
+          "action": "/api/subscribe"
+        },
+        "className": "bg-muted"
+      }
+    }
+  }
+}
