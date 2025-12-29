@@ -382,11 +382,29 @@ export default function KvWorkshopPage() {
 
   const [hasModel, setHasModel] = useState(false);
   const [modelDesc, setModelDesc] = useState('');
+  const [modelImageFile, setModelImageFile] = useState<File | null>(null);
+  const [modelImagePreviewUrl, setModelImagePreviewUrl] = useState<string>('');
   const [hasScene, setHasScene] = useState(false);
   const [sceneDesc, setSceneDesc] = useState('');
   const [hasDataViz, setHasDataViz] = useState(false);
   const [dataVizNotes, setDataVizNotes] = useState('');
   const [otherReqs, setOtherReqs] = useState('');
+
+  useEffect(() => {
+    if (!hasModel) {
+      if (modelImagePreviewUrl) {
+        URL.revokeObjectURL(modelImagePreviewUrl);
+      }
+      setModelImageFile(null);
+      setModelImagePreviewUrl('');
+    }
+
+    return () => {
+      if (modelImagePreviewUrl) {
+        URL.revokeObjectURL(modelImagePreviewUrl);
+      }
+    };
+  }, [hasModel, modelImagePreviewUrl]);
 
   const [flippedCardIds, setFlippedCardIds] = useState<number[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
@@ -1089,14 +1107,93 @@ export default function KvWorkshopPage() {
                 />
               </div>
               {hasModel && (
-                <input
-                  placeholder="描述模特..."
-                  value={modelDesc}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setModelDesc(e.target.value)
-                  }
-                  className="w-full rounded border border-zinc-800 bg-zinc-950 p-2 text-xs outline-none"
-                />
+                <div className="space-y-2">
+                  <input
+                    placeholder="描述模特..."
+                    value={modelDesc}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setModelDesc(e.target.value)
+                    }
+                    className="w-full rounded border border-zinc-800 bg-zinc-950 p-2 text-xs outline-none"
+                  />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase text-zinc-500">
+                        上传模特照片（可选）
+                      </span>
+                      {modelImageFile ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (modelImagePreviewUrl) {
+                              URL.revokeObjectURL(modelImagePreviewUrl);
+                            }
+                            setModelImageFile(null);
+                            setModelImagePreviewUrl('');
+                          }}
+                          className="rounded-md border border-white/10 bg-transparent px-2 py-1 text-[10px] font-semibold text-zinc-300 hover:bg-white/5"
+                        >
+                          移除
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <label className="group relative block overflow-hidden rounded-lg border border-dashed border-zinc-700 bg-zinc-950/60 p-3 transition-colors hover:border-purple-500/50">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const next = e.target.files?.[0] ?? null;
+                          if (!next) return;
+
+                          if (modelImagePreviewUrl) {
+                            URL.revokeObjectURL(modelImagePreviewUrl);
+                          }
+                          const url = URL.createObjectURL(next);
+                          setModelImageFile(next);
+                          setModelImagePreviewUrl(url);
+                          e.target.value = '';
+                        }}
+                      />
+
+                      {modelImagePreviewUrl ? (
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-14 w-14 overflow-hidden rounded-md border border-white/10 bg-black/40">
+                            <img
+                              src={modelImagePreviewUrl}
+                              alt="model"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-xs font-semibold text-zinc-100">
+                              {modelImageFile?.name || '已选择图片'}
+                            </div>
+                            <div className="text-[11px] text-zinc-500">
+                              点击更换图片
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-xs font-semibold text-zinc-100">
+                              点击上传模特照片
+                            </div>
+                            <div className="text-[11px] text-zinc-500">
+                              用你自己的模特照来约束生成效果
+                            </div>
+                          </div>
+                          <div className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-zinc-200">
+                            选择文件
+                          </div>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
               )}
 
               <div className="flex items-center justify-between">
