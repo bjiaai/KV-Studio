@@ -643,15 +643,14 @@ export default function KvWorkshopPage() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-purple-500/30">
+    <div className="flex min-h-screen flex-col bg-zinc-950 pt-14 font-sans text-zinc-100 selection:bg-purple-500/30 lg:pt-18">
       <style jsx global>{`
         .kv-glass {
-          background: rgba(18, 18, 24, 0.42);
+          background: rgba(24, 24, 31, 0.55);
           border: 1px solid rgba(255, 255, 255, 0.06);
-          box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-            0 18px 60px rgba(0, 0, 0, 0.55);
-          backdrop-filter: blur(14px);
+          box-shadow: 0 0 0 1px rgba(112, 67, 241, 0.08) inset;
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
         }
 
         .kv-ai-shimmer {
@@ -819,33 +818,6 @@ export default function KvWorkshopPage() {
           }
         }
       `}</style>
-      {/* Header */}
-      <header className="sticky top-0 z-50 flex h-12 items-center justify-between border-b border-zinc-800 bg-zinc-950/80 px-6 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-tr from-purple-500 to-pink-500 text-[10px] font-bold text-white">
-            V
-          </div>
-          <div className="leading-tight">
-            <div className="text-sm font-bold tracking-tight">KV视觉工坊</div>
-            <div className="text-[10px] font-medium uppercase text-zinc-500">KV STUDIO</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-900"
-          >
-            示例
-          </button>
-          <button
-            type="button"
-            className="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-900"
-          >
-            帮助
-          </button>
-          {primaryCta}
-        </div>
-      </header>
 
       {/* Hero */}
       <section className="border-b border-zinc-800 bg-zinc-950 px-6 py-10">
