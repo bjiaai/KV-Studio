@@ -51,7 +51,7 @@
                 "amount": 69900,
                 "price": "¥699",
                 "original_price": "¥1399",
-                "payment_providers": ["stripe"]
+                "payment_providers": ["stripe", "creem"]
               }
             ],
             "unit": "",
@@ -63,6 +63,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "starter",
+            "payment_product_id": "prod_jetENbeos4WXpycthw84W",
             "product_name": "ShipAny 模板入门版",
             "credits": 100,
             "valid_days": 30,

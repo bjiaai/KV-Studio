@@ -54,6 +54,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "starter",
+            "payment_product_id": "prod_jetENbeos4WXpycthw84W",
             "product_name": "ShipAny Boilerplate Starter",
             "credits": 100,
             "valid_days": 30,

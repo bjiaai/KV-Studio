@@ -390,6 +390,43 @@ export default function KvWorkshopPage() {
   const [dataVizNotes, setDataVizNotes] = useState('');
   const [otherReqs, setOtherReqs] = useState('');
 
+  const [outputLanguage, setOutputLanguage] = useState<'zh' | 'en'>('zh');
+  const [aspectRatio, setAspectRatio] = useState<'16:9' | '4:3' | '1:1' | '3:4' | '9:16'>(
+    '4:3'
+  );
+
+  const [activeGlobalTab, setActiveGlobalTab] = useState<'workbench' | 'assets'>(
+    'workbench'
+  );
+  const [generationHistory, setGenerationHistory] = useState<
+    Array<{
+      id: string;
+      createdAt: number;
+      productName: string;
+      sellingPoints: string;
+      styleId: VisualStyleId;
+      typoId: TypographyStyleId;
+      outputLanguage: 'zh' | 'en';
+      aspectRatio: string;
+    }>
+  >([]);
+
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [assistantDraft, setAssistantDraft] = useState('');
+  const [assistantMessages, setAssistantMessages] = useState<
+    Array<{ role: 'assistant' | 'user'; content: string }>
+  >([
+    {
+      role: 'assistant',
+      content:
+        '我是你的 KV 视觉顾问。你可以告诉我：要更强调哪个卖点、想要更偏“高端/科技/温柔”哪种气质，或需要我帮你把某张卡的提示词改得更像电商详情图。',
+    },
+  ]);
+
+  const workshopRef = useRef<HTMLDivElement | null>(null);
+  const [landingGalleryPhase, setLandingGalleryPhase] = useState<'hero' | 'grid'>('hero');
+  const [showDockCta, setShowDockCta] = useState(false);
+
   useEffect(() => {
     if (!hasModel) {
       if (modelImagePreviewUrl) {
@@ -438,6 +475,21 @@ export default function KvWorkshopPage() {
       .filter(Boolean)
       .join(', ');
   }, [sellingPoints]);
+
+  const landingExampleImages = useMemo(
+    () => [
+      '/imgs/cases/1.png',
+      '/imgs/cases/2.png',
+      '/imgs/cases/3.png',
+      '/imgs/cases/4.png',
+      '/imgs/cases/5.png',
+      '/imgs/cases/6.png',
+      '/imgs/cases/7.png',
+      '/imgs/cases/8.png',
+      '/imgs/cases/9.png',
+    ],
+    []
+  );
 
   const THINKING_PHRASES = useMemo(
     () => [
@@ -494,6 +546,21 @@ export default function KvWorkshopPage() {
     setActivePromptEditorCardId(null);
     setExpandedCardId(null);
     setGenerationPhase('scanning');
+
+     setActiveGlobalTab('workbench');
+     setGenerationHistory((prev) => [
+       {
+         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+         createdAt: Date.now(),
+         productName,
+         sellingPoints,
+         styleId: selectedStyle,
+         typoId: selectedTypo,
+         outputLanguage,
+         aspectRatio,
+       },
+       ...prev,
+     ]);
 
     const computed: Record<number, string> = {};
     CARD_TYPES.forEach((c) => {
@@ -569,6 +636,11 @@ export default function KvWorkshopPage() {
     setIsClientMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!isClientMounted) return;
+    setLandingGalleryPhase('hero');
+  }, [isClientMounted]);
+
   const handleProductImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return;
     const url = URL.createObjectURL(file);
@@ -600,6 +672,11 @@ export default function KvWorkshopPage() {
     const typoLabel =
       TYPOGRAPHY_STYLES.find((t) => t.id === selectedTypo)?.label || '';
 
+    const languageHint =
+      outputLanguage === 'zh'
+        ? 'Output language: Simplified Chinese.'
+        : 'Output language: English.';
+
     let prompt = `/imagine prompt: ${productName}`;
 
     if (normalizedSellingPoints) {
@@ -616,9 +693,94 @@ export default function KvWorkshopPage() {
     }
     if (otherReqs.trim()) prompt += `Notes: ${otherReqs.trim()}. `;
 
-    prompt += `Typography: ${typoLabel}. --v 6.0`;
+    prompt += `Typography: ${typoLabel}. ${languageHint} --ar ${aspectRatio} --v 6.0`;
 
     return prompt;
+  };
+
+  const isWorkbenchUnlocked = generationPhase !== 'idle';
+
+  const insights = useMemo(() => {
+    const points = sellingPoints
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const coreSellingPoint = points[0] || '未填写（建议补充 1-3 条核心卖点）';
+
+    const styleMeta = VISUAL_STYLES.find((s) => s.id === selectedStyle);
+    const typoMeta = TYPOGRAPHY_STYLES.find((t) => t.id === selectedTypo);
+
+    const palette =
+      selectedStyle === 'tech'
+        ? {
+            title: '冷灰 + 电蓝点亮（科技可信）',
+            reason: '适合数码/工业品，强调参数可信与材质反光。',
+          }
+        : selectedStyle === 'magazine'
+          ? {
+              title: '高对比黑白 + 低饱和彩色（高级编辑感）',
+              reason: '适合美妆/时尚，强调层级与留白。',
+            }
+          : selectedStyle === 'organic'
+            ? {
+                title: '自然中性色 + 柔和绿色（有机舒适）',
+                reason: '适合食品/护肤，强调“温和/健康/干净”。',
+              }
+            : {
+                title: '品牌主色 + 中性底色（统一识别）',
+                reason: '保持电商信息密度的同时，确保视觉不杂乱。',
+              };
+
+    const styleReason =
+      styleMeta?.tooltip ||
+      '按产品类目匹配风格：数码偏“硬朗/对比”，美妆偏“留白/质感”，食品偏“自然/通透”。';
+
+    const typoReason =
+      typoMeta?.id === 'serif_grid'
+        ? '大标题强势、适合“主卖点一眼读懂”的首屏。'
+        : typoMeta?.id === 'thin'
+          ? '信息克制、适合高端品牌感与留白排版。'
+          : typoMeta?.id === '3d'
+            ? '强调力度与冲击，适合强促销/强性能卖点。'
+            : '保持识别与层级，适配详情图常见的标题+卖点结构。';
+
+    return {
+      coreSellingPoint,
+      palette,
+      style: {
+        title: styleMeta?.label || '未选择',
+        reason: styleReason,
+      },
+      typography: {
+        title: typoMeta?.label || '未选择',
+        reason: typoReason,
+      },
+    };
+  }, [sellingPoints, selectedStyle, selectedTypo]);
+
+  const handleAssistantSend = () => {
+    const text = assistantDraft.trim();
+    if (!text) return;
+
+    setAssistantMessages((prev) => [...prev, { role: 'user', content: text }]);
+    setAssistantDraft('');
+
+    const hint =
+      outputLanguage === 'zh'
+        ? '（我会用中文给你“可直接复制”的修改建议）'
+        : '（I will reply in English with copy-ready suggestions）';
+
+    const reply =
+      `收到。${hint}\n\n` +
+      `- 建议先锁定主卖点：${insights.coreSellingPoint}\n` +
+      `- 当前建议风格：${insights.style.title}（${insights.style.reason}）\n` +
+      `- 当前建议字体：${insights.typography.title}（${insights.typography.reason}）\n\n` +
+      `如果你告诉我“哪一张卡（01-10）要更偏：更高端/更科技/更温柔/更促销”，我可以给你对应的 Prompt 改写版本。`;
+
+    window.setTimeout(() => {
+      setAssistantMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+    }, 220);
   };
 
   const aiRecommendedStyleIds = useMemo<VisualStyleId[]>(() => {
@@ -629,6 +791,22 @@ export default function KvWorkshopPage() {
     if (/(食品|food|organic|有机|茶|coffee|咖啡)/.test(seed)) return ['organic', 'film'];
     return ['tech'];
   }, [magicMatchEnabled, productName, sellingPoints]);
+
+  useEffect(() => {
+    if (!magicMatchEnabled) return;
+    const next = aiRecommendedStyleIds[0];
+    if (!next) return;
+    setSelectedStyle(next);
+  }, [aiRecommendedStyleIds, magicMatchEnabled]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowDockCta(window.scrollY > window.innerHeight * 0.6);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const primaryCta = (
     <motion.button
@@ -643,7 +821,8 @@ export default function KvWorkshopPage() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 pt-14 font-sans text-zinc-100 selection:bg-purple-500/30 lg:pt-18">
+    <>
+    <div className="flex min-h-screen bg-zinc-950 pt-14 font-sans text-zinc-100 selection:bg-purple-500/30 lg:pt-18">
       <style jsx global>{`
         .kv-glass {
           background: rgba(24, 24, 31, 0.55);
@@ -819,68 +998,284 @@ export default function KvWorkshopPage() {
         }
       `}</style>
 
-      {/* Hero */}
-      <section className="border-b border-zinc-800 bg-zinc-950 px-6 py-10">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-xl">
-            <h2 className="text-4xl font-bold tracking-tight">KV视觉工坊</h2>
-            <p className="mt-3 text-lg font-semibold text-zinc-200">
-              把营销逻辑，直接变成能卖的详情图
-            </p>
-            <p className="mt-2 text-sm text-zinc-400">基于营销模型的电商 KV 视觉生成系统</p>
+      <aside className="group sticky top-14 h-[calc(100vh-56px)] w-[56px] flex-shrink-0 border-r border-zinc-800 bg-zinc-950/70 py-4 backdrop-blur-xl transition-[width] duration-300 ease-out hover:w-[208px]">
+        <div className="mt-2 flex w-full flex-col gap-2 px-2">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveGlobalTab('workbench');
+              workshopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-zinc-200 hover:bg-white/5 ${
+              activeGlobalTab === 'workbench'
+                ? 'border-white/10 bg-white/5'
+                : 'border-white/5 bg-black/10'
+            }`}
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-black/20">
+              <IconSettings />
+            </span>
+            <span className="hidden text-sm font-semibold group-hover:block">工作台</span>
+          </button>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <label className="inline-flex cursor-pointer items-center rounded-md border border-zinc-800 bg-zinc-950 px-4 py-2 text-xs font-semibold text-zinc-100 hover:bg-zinc-900">
-                上传产品图
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    handleProductImageFile(file);
-                  }}
-                />
-              </label>
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.95 }}
-                onClick={runGeneration}
-                className="kv-primary-btn relative overflow-hidden rounded-md px-4 py-2 text-xs font-bold text-white"
+          <button
+            type="button"
+            onClick={() => setActiveGlobalTab('assets')}
+            className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-zinc-200 hover:bg-white/5 ${
+              activeGlobalTab === 'assets'
+                ? 'border-white/10 bg-white/5'
+                : 'border-white/5 bg-black/10'
+            }`}
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-black/20">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <span className="relative z-10">开始生成 KV</span>
-                <span className="kv-primary-btn__bg" aria-hidden="true" />
-              </motion.button>
-            </div>
-          </div>
-
-          <div className="w-full max-w-xl">
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="text-xs font-semibold text-zinc-200">KV 卡片结构示意</div>
-                <div className="text-[10px] font-medium text-zinc-500">Preview</div>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                <div className="col-span-2 row-span-2 aspect-[16/10] rounded-xl border border-zinc-800 bg-zinc-950/40"></div>
-                <div className="aspect-square rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-                <div className="aspect-square rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-                <div className="aspect-square rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-                <div className="aspect-square rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="h-12 rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-                <div className="h-12 rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-                <div className="h-12 rounded-xl border border-zinc-800 bg-zinc-950/30"></div>
-              </div>
-            </div>
-          </div>
+                <path d="M4 7h16" />
+                <path d="M4 12h16" />
+                <path d="M4 17h16" />
+              </svg>
+            </span>
+            <span className="hidden text-sm font-semibold group-hover:block">资产</span>
+          </button>
         </div>
-      </section>
+      </aside>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-[25%] min-w-[320px] max-w-[420px] flex-shrink-0 space-y-6 overflow-y-auto border-r border-zinc-800 bg-zinc-950 p-5">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <section className="relative border-b border-zinc-800 bg-zinc-950 px-6">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle_at_center,rgba(112,67,241,0.22),transparent_60%)] blur-2xl" />
+            <div className="absolute -right-44 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18),transparent_62%)] blur-2xl" />
+            <div className="absolute bottom-[-220px] left-1/2 h-[620px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.10),transparent_65%)] blur-2xl" />
+          </div>
+
+          <div className="relative mx-auto grid min-h-[calc(100vh-56px)] w-full max-w-7xl grid-cols-1 items-center gap-10 py-14 lg:grid-cols-[0.72fr_1.28fr] lg:gap-12 lg:py-20">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="max-w-2xl"
+            >
+              <h1 className="text-5xl font-semibold leading-[1.02] tracking-tight text-zinc-50 md:text-6xl">
+                KV视觉工坊
+              </h1>
+              <div className="mt-7 text-2xl font-semibold leading-snug text-zinc-200 md:text-3xl">
+                把营销逻辑，直接变成能卖的详情图
+              </div>
+              <div className="mt-5 text-base leading-relaxed text-zinc-400 md:text-lg">
+                基于营销模型的电商 KV 视觉生成系统
+              </div>
+
+              <div className="mt-10">
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setActiveGlobalTab('workbench');
+                    workshopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="kv-primary-btn relative overflow-hidden rounded-xl px-8 py-4 text-base font-extrabold text-white md:px-10 md:py-5 md:text-lg"
+                >
+                  <span className="relative z-10">立即生成全套视觉海报</span>
+                  <span className="kv-primary-btn__bg" aria-hidden="true" />
+                </motion.button>
+              </div>
+            </motion.div>
+
+            <div className="min-w-0">
+              <div
+                className="relative"
+                onMouseEnter={() => setLandingGalleryPhase('grid')}
+                onMouseLeave={() => setLandingGalleryPhase('hero')}
+              >
+                <div className="relative mx-auto w-full max-w-[720px] overflow-hidden rounded-[28px] border border-transparent bg-zinc-900/20 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.55)] lg:max-w-none">
+                  <div className="relative aspect-[9/16] overflow-hidden rounded-2xl border border-transparent bg-black/20">
+                    {landingExampleImages.map((src, idx) => {
+                      const centerIdx = 4;
+                      const isExpanded = landingGalleryPhase === 'grid';
+                      const isHero = landingGalleryPhase === 'hero';
+                      const row = Math.floor(idx / 3);
+                      const col = idx % 3;
+
+                      const gridLeft = col === 0 ? '16.6667%' : col === 1 ? '50%' : '83.3333%';
+                      const gridTop = row === 0 ? '16.6667%' : row === 1 ? '50%' : '83.3333%';
+
+                      const isStackCard = idx === centerIdx || idx === centerIdx - 1 || idx === centerIdx + 1;
+                      const stackOrder = idx === centerIdx ? 0 : idx === centerIdx - 1 ? 1 : 2;
+                      const stackOffsetX = stackOrder === 0 ? 0 : stackOrder === 1 ? 14 : 26;
+                      const stackOffsetY = stackOrder === 0 ? 0 : stackOrder === 1 ? 10 : 18;
+                      const stackRotate = stackOrder === 0 ? 0 : stackOrder === 1 ? -4 : 5;
+                      const stackScale = stackOrder === 0 ? 1 : stackOrder === 1 ? 0.985 : 0.97;
+
+                      const distanceFromCenter = Math.abs(row - 1) + Math.abs(col - 1);
+
+                      const animateLeft = isExpanded ? gridLeft : '50%';
+                      const animateTop = isExpanded ? gridTop : '50%';
+                      const animateX = isExpanded
+                        ? '-50%'
+                        : isStackCard
+                          ? `calc(-50% + ${stackOffsetX}px)`
+                          : '-50%';
+                      const animateY = isExpanded
+                        ? '-50%'
+                        : isStackCard
+                          ? `calc(-50% + ${stackOffsetY}px)`
+                          : '-50%';
+
+                      const animateOpacity = isExpanded
+                        ? 1
+                        : isHero
+                          ? idx === centerIdx
+                            ? 1
+                            : 0
+                          : isStackCard
+                            ? idx === centerIdx
+                              ? 1
+                              : 0.9
+                            : 0;
+
+                      return (
+                        <motion.div
+                          key={`${src}-${idx}`}
+                          className="absolute"
+                          initial={false}
+                          animate={{
+                            left: animateLeft,
+                            top: animateTop,
+                            x: animateX,
+                            y: animateY,
+                            opacity: animateOpacity,
+                            rotate: isExpanded
+                              ? 0
+                              : isStackCard
+                                ? stackRotate
+                                : 0,
+                            scale: isExpanded
+                              ? 1
+                              : idx === centerIdx
+                                ? 1.3
+                                : isStackCard
+                                  ? stackScale
+                                  : 0.86,
+                          }}
+                          transition={{
+                            duration: 0.72,
+                            ease: [0.16, 1, 0.3, 1],
+                            delay: isExpanded
+                              ? idx === centerIdx
+                                ? 0
+                                : 0.06 + distanceFromCenter * 0.07 + (idx % 3) * 0.01
+                              : 0,
+                          }}
+                          style={{
+                            width: isExpanded ? '33.3334%' : isStackCard ? '86%' : '86%',
+                            height: isExpanded ? '33.3334%' : isStackCard ? '92%' : '92%',
+                            zIndex: isExpanded
+                              ? idx === centerIdx
+                                ? 100
+                                : 10 + (9 - idx)
+                              : idx === centerIdx
+                                ? 40
+                                : 30 - stackOrder,
+                          }}
+                        >
+                          <div
+                            className={`h-full w-full overflow-hidden bg-black/15 shadow-[0_18px_60px_rgba(0,0,0,0.45)] transition-[border-radius,border-color] duration-300 ease-out ${
+                              isExpanded
+                                ? 'rounded-none border-0'
+                                : 'rounded-2xl border border-transparent'
+                            }`}
+                          >
+                            <img
+                              src={src}
+                              alt={`example-${idx + 1}`}
+                              className="h-full w-full object-cover"
+                              style={{
+                                filter:
+                                  !isExpanded && idx === centerIdx
+                                    ? 'grayscale(1) saturate(0.05) contrast(0.95) brightness(0.95)'
+                                    : 'none',
+                                transition: 'filter 300ms ease-out',
+                              }}
+                            />
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pointer-events-none absolute -bottom-10 left-1/2 h-24 w-[78%] -translate-x-1/2 rounded-full bg-black/55 blur-2xl" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div ref={workshopRef} className="flex min-w-0 flex-1 overflow-hidden">
+          {activeGlobalTab === 'assets' ? (
+            <main className="flex-1 overflow-y-auto bg-zinc-950 px-6 py-8">
+              <div className="mx-auto w-full max-w-6xl">
+                <div className="mb-4 text-sm font-bold text-zinc-200">历史生成记录</div>
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/20 p-4">
+                  {generationHistory.length === 0 ? (
+                    <div className="text-sm text-zinc-400">
+                      暂无历史记录。生成一次后，这里会保留你的参数快照，方便随时回看。
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {generationHistory.slice(0, 20).map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setProductName(item.productName);
+                            setSellingPoints(item.sellingPoints);
+                            setSelectedStyle(item.styleId);
+                            setSelectedTypo(item.typoId);
+                            setOutputLanguage(item.outputLanguage);
+                            setAspectRatio(item.aspectRatio as any);
+                            setActiveGlobalTab('workbench');
+                            window.setTimeout(() => {
+                              workshopRef.current?.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                              });
+                            }, 60);
+                          }}
+                          className="flex w-full items-start justify-between gap-4 rounded-xl border border-white/5 bg-black/20 p-4 text-left hover:bg-black/30"
+                        >
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-semibold text-zinc-100">
+                              {item.productName}
+                            </div>
+                            <div className="mt-1 line-clamp-2 text-xs text-zinc-500">
+                              {item.sellingPoints}
+                            </div>
+                            <div className="mt-2 text-[11px] text-zinc-500">
+                              风格：{VISUAL_STYLES.find((s) => s.id === item.styleId)?.label}｜字体：
+                              {TYPOGRAPHY_STYLES.find((t) => t.id === item.typoId)?.label}
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0 text-[11px] text-zinc-500">
+                            {new Date(item.createdAt).toLocaleString()}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </main>
+          ) : (
+            <>
+              <aside className="w-[25%] min-w-[320px] max-w-[420px] flex-shrink-0 space-y-6 overflow-y-auto border-r border-zinc-800 bg-zinc-950 p-5">
           <section>
             <SectionHeader icon={IconBox} title="产品基础信息" />
             <div className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/20 p-4">
@@ -1037,36 +1432,98 @@ export default function KvWorkshopPage() {
                 />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {VISUAL_STYLES.map((style) => (
-                <VisualStyleCard
-                  key={style.id}
-                  style={style}
-                  selected={selectedStyle === style.id}
-                  isAiSelected={magicMatchEnabled && aiRecommendedStyleIds.includes(style.id)}
-                  onClick={() => setSelectedStyle(style.id)}
-                />
-              ))}
+            <div className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/20 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-zinc-200">当前选择</div>
+                  <div className="mt-1 truncate text-[11px] text-zinc-500">
+                    {VISUAL_STYLES.find((s) => s.id === selectedStyle)?.label}
+                    {magicMatchEnabled && aiRecommendedStyleIds.length > 0
+                      ? `（推荐：${aiRecommendedStyleIds
+                          .slice(0, 2)
+                          .map((id) => VISUAL_STYLES.find((s) => s.id === id)?.label)
+                          .filter(Boolean)
+                          .join(' / ')}）`
+                      : ''}
+                  </div>
+                </div>
+              </div>
+              <select
+                value={selectedStyle}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setSelectedStyle(e.target.value as VisualStyleId)
+                }
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/15"
+              >
+                {VISUAL_STYLES.map((style) => (
+                  <option key={style.id} value={style.id}>
+                    {style.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </section>
 
           <section>
             <SectionHeader icon={IconSparkles} title="文字排版效果" />
-            <div className="grid grid-cols-2 gap-2">
-              {TYPOGRAPHY_STYLES.map((typo) => (
-                <TypoStyleCard
-                  key={typo.id}
-                  typo={typo}
-                  selected={selectedTypo === typo.id}
-                  onClick={() => setSelectedTypo(typo.id)}
-                />
-              ))}
+            <div className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/20 p-4">
+              <div className="text-[11px] text-zinc-500">
+                {TYPOGRAPHY_STYLES.find((t) => t.id === selectedTypo)?.label}
+              </div>
+              <select
+                value={selectedTypo}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setSelectedTypo(e.target.value as TypographyStyleId)
+                }
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/15"
+              >
+                {TYPOGRAPHY_STYLES.map((typo) => (
+                  <option key={typo.id} value={typo.id}>
+                    {typo.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </section>
 
           <section className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
             <SectionHeader icon={IconSettings} title="高级生成参数" />
             <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  语言输出
+                </label>
+                <select
+                  value={outputLanguage}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setOutputLanguage(e.target.value as any)
+                  }
+                  className="w-full rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/15"
+                >
+                  <option value="zh">纯中文</option>
+                  <option value="en">纯英文</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  画面比例
+                </label>
+                <select
+                  value={aspectRatio}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setAspectRatio(e.target.value as any)
+                  }
+                  className="w-full rounded-lg border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/15"
+                >
+                  <option value="16:9">16:9</option>
+                  <option value="4:3">4:3</option>
+                  <option value="1:1">1:1</option>
+                  <option value="3:4">3:4</option>
+                  <option value="9:16">9:16</option>
+                </select>
+              </div>
+
               <div className="flex items-center justify-between">
                 <span className="text-xs">是否需要模特</span>
                 <input
@@ -1226,35 +1683,146 @@ export default function KvWorkshopPage() {
                   className="w-full resize-none rounded border border-zinc-800 bg-zinc-950 p-2 text-xs outline-none"
                 />
               </div>
+
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/20 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  生成操作
+                </div>
+                <div className="mt-2">
+                  <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.98 }}
+                    onClick={runGeneration}
+                    className="kv-primary-btn relative w-full overflow-hidden rounded-xl px-4 py-3 text-sm font-extrabold text-white"
+                  >
+                    <span className="relative z-10">开始生成全套方案</span>
+                    <span className="kv-primary-btn__bg" aria-hidden="true" />
+                  </motion.button>
+                </div>
+                <div className="mt-2 text-[11px] text-zinc-500">
+                  点击后将开始输出洞察报告，并解锁右侧海报卡片区域。
+                </div>
+              </div>
             </div>
           </section>
         </aside>
 
-        {/* Main Grid */}
         <main className="flex-1 overflow-y-auto bg-zinc-950 px-6 py-6 pb-28">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-xs font-bold text-zinc-200">主KV / Hero Shot</div>
-              <AnimatePresence initial={false}>
-                {flippedCardIds.length > 0 ? (
-                  <motion.button
-                    key="collapse-all"
-                    type="button"
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.18 }}
-                    onClick={() => setFlippedCardIds([])}
-                    className="rounded-md border border-white/10 bg-transparent px-3 py-1.5 text-[11px] font-semibold text-zinc-200 hover:bg-white/5"
-                  >
-                    一键收起
-                  </motion.button>
-                ) : null}
-              </AnimatePresence>
+            <div className="mb-4 rounded-2xl border border-zinc-800 bg-zinc-900/20 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    洞察报告
+                  </div>
+                  {isWorkbenchUnlocked ? (
+                    <div className="mt-2 text-sm font-semibold text-zinc-100">
+                      产品卖点摘要：{insights.coreSellingPoint}
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-sm font-semibold text-zinc-500">
+                      点击左侧“开始生成全套方案”后输出
+                    </div>
+                  )}
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {flippedCardIds.length > 0 ? (
+                    <motion.button
+                      key="collapse-all"
+                      type="button"
+                      whileTap={{ scale: 0.95 }}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.18 }}
+                      onClick={() => setFlippedCardIds([])}
+                      className="rounded-md border border-white/10 bg-transparent px-3 py-1.5 text-[11px] font-semibold text-zinc-200 hover:bg-white/5"
+                    >
+                      一键收起
+                    </motion.button>
+                  ) : null}
+                </AnimatePresence>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border border-white/10 bg-white/5" />
+                    <div className="text-[11px] font-semibold text-zinc-300">品牌核心心智</div>
+                  </div>
+                  {isWorkbenchUnlocked ? (
+                    <div className="mt-3 text-sm font-semibold text-zinc-100">{insights.coreSellingPoint}</div>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      <div className="h-3 w-3/5 rounded bg-white/5" />
+                      <div className="h-3 w-4/5 rounded bg-white/5" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border border-white/10 bg-white/5" />
+                    <div className="text-[11px] font-semibold text-zinc-300">色彩基调</div>
+                  </div>
+                  {isWorkbenchUnlocked ? (
+                    <>
+                      <div className="mt-3 text-sm font-semibold text-zinc-100">{insights.palette.title}</div>
+                      <div className="mt-2 text-xs text-zinc-400">{insights.palette.reason}</div>
+                    </>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      <div className="h-3 w-2/3 rounded bg-white/5" />
+                      <div className="h-3 w-5/6 rounded bg-white/5" />
+                      <div className="h-3 w-3/5 rounded bg-white/5" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border border-white/10 bg-white/5" />
+                    <div className="text-[11px] font-semibold text-zinc-300">风格定调</div>
+                  </div>
+                  {isWorkbenchUnlocked ? (
+                    <>
+                      <div className="mt-3 text-sm font-semibold text-zinc-100">{insights.style.title}</div>
+                      <div className="mt-2 text-xs text-zinc-400">{insights.style.reason}</div>
+                      <div className="mt-3 text-[11px] font-semibold text-zinc-300">字体：{insights.typography.title}</div>
+                    </>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      <div className="h-3 w-1/2 rounded bg-white/5" />
+                      <div className="h-3 w-5/6 rounded bg-white/5" />
+                      <div className="h-3 w-2/3 rounded bg-white/5" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-2xl border border-white/5 bg-black/15 p-4">
+                {isWorkbenchUnlocked ? (
+                  <div className="text-xs text-zinc-400">
+                    交付建议：先生成整套海报，再逐张卡片微调 Prompt（先调主KV，再调场景/细节）。
+                  </div>
+                ) : (
+                  <div className="h-3 w-2/3 rounded bg-white/5" />
+                )}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div
+              className={`relative ${
+                isWorkbenchUnlocked ? '' : 'pointer-events-none select-none'
+              }`}
+            >
+              <div
+                className={`${
+                  isWorkbenchUnlocked ? '' : 'blur-[2px] opacity-55'
+                } transition-[filter,opacity] duration-300 ease-out`}
+              >
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {CARD_TYPES.map((card) => {
                 const isFlipped = flippedCardIds.includes(card.id);
                 const renderStatus = cardRenderStatusById[card.id] ?? 'idle';
@@ -1565,32 +2133,94 @@ export default function KvWorkshopPage() {
                   </div>
                 );
               })}
+                </div>
+              </div>
+
+              {!isWorkbenchUnlocked ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="rounded-2xl border border-white/10 bg-black/45 px-5 py-4 text-center backdrop-blur-xl">
+                    <div className="text-sm font-semibold text-zinc-100">
+                      请先点击左侧“开始生成全套方案”
+                    </div>
+                    <div className="mt-1 text-xs text-zinc-400">
+                      生成前，卡片区域将保持锁定，用于突出洞察与输入质量。
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+           </div>
+         </div>
+       </main>
+     </>
+   )}
+     </div>
+
+      <div className="fixed bottom-6 right-6 z-40">
+        {isAssistantOpen ? (
+          <div className="kv-glass w-[360px] max-w-[86vw] overflow-hidden rounded-2xl border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.55)]">
+            <div className="flex items-center justify-between border-b border-white/5 bg-black/25 px-4 py-3">
+              <div className="text-xs font-bold text-zinc-200">AI 助手 · KV 视觉顾问</div>
+              <button
+                type="button"
+                onClick={() => setIsAssistantOpen(false)}
+                className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[11px] font-semibold text-zinc-200 hover:bg-black/30"
+              >
+                收起
+              </button>
+            </div>
+
+            <div className="max-h-[360px] overflow-y-auto px-4 py-3">
+              <div className="space-y-3">
+                {assistantMessages.map((m, idx) => (
+                  <div
+                    key={idx}
+                    className={`rounded-xl border px-3 py-2 text-xs leading-relaxed ${
+                      m.role === 'assistant'
+                        ? 'border-white/5 bg-black/20 text-zinc-200'
+                        : 'border-[#7043f1]/20 bg-[#7043f1]/10 text-zinc-100'
+                    }`}
+                  >
+                    {m.content}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-white/5 bg-black/20 p-3">
+              <div className="flex items-end gap-2">
+                <textarea
+                  rows={2}
+                  value={assistantDraft}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setAssistantDraft(e.target.value)
+                  }
+                  className="flex-1 resize-none rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/15"
+                  placeholder="例如：把 01 主KV 更高端一点，少一点炫酷，多一点质感。"
+                />
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleAssistantSend}
+                  className="kv-primary-btn relative overflow-hidden rounded-xl px-4 py-2 text-xs font-bold text-white"
+                >
+                  <span className="relative z-10">发送</span>
+                  <span className="kv-primary-btn__bg" aria-hidden="true" />
+                </motion.button>
+              </div>
             </div>
           </div>
-        </main>
+        ) : (
+          <motion.button
+            type="button"
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setIsAssistantOpen(true)}
+            className="kv-primary-btn relative overflow-hidden rounded-full px-4 py-3 text-xs font-extrabold text-white shadow-[0_18px_60px_rgba(112,67,241,0.18)]"
+          >
+            <span className="relative z-10">AI 助手</span>
+            <span className="kv-primary-btn__bg" aria-hidden="true" />
+          </motion.button>
+        )}
       </div>
-
-      <motion.div
-        className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2"
-        animate={{ opacity: activePromptEditorCardId !== null ? 0.3 : 1 }}
-        transition={{ duration: 0.18 }}
-      >
-        <div className="relative w-[460px] max-w-[92vw]">
-          <div className="kv-magic-border" aria-hidden="true" />
-          <div className="kv-magic-border__inner" aria-hidden="true" />
-          <div className="relative rounded-full px-3 py-3">
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.97 }}
-              onClick={runGeneration}
-              className="kv-primary-btn relative w-full overflow-hidden rounded-full px-6 py-3 text-sm font-extrabold text-white"
-            >
-              <span className="relative z-10">✨ 立即生成全套视觉海报</span>
-              <span className="kv-primary-btn__bg" aria-hidden="true" />
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
 
       {isClientMounted
         ? createPortal(
@@ -1685,6 +2315,8 @@ export default function KvWorkshopPage() {
             document.body
           )
         : null}
-    </div>
-  );
+     </div>
+     </div>
+   </>
+   );
 }
