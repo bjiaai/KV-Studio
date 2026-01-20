@@ -3,6 +3,7 @@ import {
   FalProvider,
   GeminiProvider,
   KieProvider,
+  OpenAIProvider,
   ReplicateProvider,
 } from '@/extensions/ai';
 import { Configs, getAllConfigs } from '@/shared/models/config';
@@ -44,6 +45,16 @@ export function getAIManagerWithConfigs(configs: Configs) {
     aiManager.addProvider(
       new GeminiProvider({
         apiKey: configs.gemini_api_key,
+        baseUrl: configs.gemini_base_url,
+      })
+    );
+  }
+
+  if (configs.openai_api_key && configs.openai_base_url) {
+    aiManager.addProvider(
+      new OpenAIProvider({
+        apiKey: configs.openai_api_key,
+        baseUrl: configs.openai_base_url,
       })
     );
   }

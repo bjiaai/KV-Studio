@@ -75,6 +75,230 @@ export async function getAuthOptions(configs: Record<string, string>) {
   const emailVerificationEnabled =
     configs.email_verification_enabled === 'true' && !!configs.resend_api_key;
 
+  const plugins: any[] = [];
+
+  if (
+    configs.feishu_auth_enabled === 'true' &&
+    configs.feishu_client_id &&
+    configs.feishu_client_secret
+  ) {
+    plugins.push({
+      id: 'feishu-oauth',
+      init: (ctx: any) => {
+        const feishuAppId = String(configs.feishu_client_id || '')
+          .trim()
+          .replace(/^['"]|['"]$/g, '');
+        const feishuAppSecret = String(configs.feishu_client_secret || '')
+          .trim()
+          .replace(/^['"]|['"]$/g, '');
+
+        const provider: any = {
+          id: 'feishu',
+          name: 'feishu',
+          options: {
+            overrideUserInfoOnSignIn: true,
+          },
+          createAuthorizationURL: async ({ state, redirectURI, scopes }: any) => {
+            const url = new URL('https://open.feishu.cn/open-apis/authen/v1/index');
+            url.searchParams.set('app_id', feishuAppId);
+            url.searchParams.set('redirect_uri', redirectURI);
+            url.searchParams.set('state', state);
+            url.searchParams.set('response_type', 'code');
+            const scope =
+              Array.isArray(scopes) && scopes.length
+                ? scopes.join(' ')
+                : 'profile email';
+            url.searchParams.set('scope', scope);
+            return url;
+          },
+          validateAuthorizationCode: async ({ code }: any) => {
+            const appTokenResp = await fetch(
+              'https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  app_id: feishuAppId,
+                  app_secret: feishuAppSecret,
+                }),
+              }
+            );
+
+            const appTokenJson: any = await appTokenResp.json();
+            const appAccessToken = appTokenJson?.app_access_token;
+            if (!appAccessToken) {
+              throw new Error(
+                `failed to obtain feishu app_access_token (code=${appTokenJson?.code ?? 'unknown'})`
+              );
+            }
+
+            let tenantAccessToken: string | undefined;
+            try {
+              const tenantTokenResp = await fetch(
+                'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    app_id: feishuAppId,
+                    app_secret: feishuAppSecret,
+                  }),
+                }
+              );
+              const tenantTokenJson: any = await tenantTokenResp.json();
+              tenantAccessToken = tenantTokenJson?.tenant_access_token;
+            } catch {
+              // best-effort only
+            }
+
+            const userTokenResp = await fetch(
+              'https://open.feishu.cn/open-apis/authen/v1/access_token',
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${appAccessToken}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  grant_type: 'authorization_code',
+                  code,
+                }),
+              }
+            );
+
+            const userTokenJson: any = await userTokenResp.json();
+            const data = userTokenJson?.data;
+            if (!data?.access_token) {
+              throw new Error(
+                `failed to obtain feishu user_access_token (code=${userTokenJson?.code ?? 'unknown'})`
+              );
+            }
+
+            return {
+              accessToken: data.access_token,
+              refreshToken: data.refresh_token,
+              accessTokenExpiresAt: new Date(
+                Date.now() + Number(data.expires_in || 0) * 1000
+              ),
+              refreshTokenExpiresAt: data.refresh_expires_in
+                ? new Date(Date.now() + Number(data.refresh_expires_in || 0) * 1000)
+                : undefined,
+              scopes: [],
+              tenantAccessToken,
+            };
+          },
+          getUserInfo: async (tokens: any) => {
+            const accessToken = tokens?.accessToken;
+            const tenantAccessToken = tokens?.tenantAccessToken;
+
+            let raw: any = {};
+            if (accessToken) {
+              try {
+                const userInfoResp = await fetch(
+                  'https://open.feishu.cn/open-apis/authen/v1/user_info',
+                  {
+                    method: 'GET',
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                  }
+                );
+
+                const userInfoJson: any = await userInfoResp.json();
+                const data = userInfoJson?.data;
+                const candidate =
+                  data?.user_info || data?.user || data?.userInfo || data;
+                const ok =
+                  userInfoResp.ok &&
+                  (userInfoJson?.code === 0 || userInfoJson?.code === undefined);
+                if (ok && candidate) {
+                  raw = candidate;
+                }
+              } catch {
+                // ignore
+              }
+            }
+
+            if (!raw?.email && !raw?.enterprise_email && tenantAccessToken) {
+              const userId = raw?.user_id || raw?.open_id || raw?.union_id;
+              const userIdType = raw?.user_id
+                ? 'user_id'
+                : raw?.open_id
+                  ? 'open_id'
+                  : raw?.union_id
+                    ? 'union_id'
+                    : '';
+              if (userId && userIdType) {
+                try {
+                  const url = new URL(
+                    `https://open.feishu.cn/open-apis/contact/v3/users/${encodeURIComponent(
+                      String(userId)
+                    )}`
+                  );
+                  url.searchParams.set('user_id_type', userIdType);
+                  url.searchParams.set('department_id_type', 'open_department_id');
+
+                  const contactResp = await fetch(url.toString(), {
+                    method: 'GET',
+                    headers: {
+                      Authorization: `Bearer ${tenantAccessToken}`,
+                    },
+                  });
+                  const contactJson: any = await contactResp.json();
+                  const user = contactJson?.data?.user;
+                  const ok =
+                    contactResp.ok &&
+                    (contactJson?.code === 0 || contactJson?.code === undefined);
+                  if (ok && user) {
+                    raw = {
+                      ...raw,
+                      email: raw?.email || user?.email,
+                      enterprise_email:
+                        raw?.enterprise_email || user?.enterprise_email,
+                    };
+                  }
+                } catch {
+                  // ignore
+                }
+              }
+            }
+
+            const id = raw.union_id || raw.open_id || raw.user_id;
+            const stringId = String(id || 'unknown');
+
+            const email =
+              raw.email ||
+              raw.enterprise_email ||
+              `feishu_${stringId}@example.invalid`;
+
+            const image = raw.avatar_url || raw.avatar_big || raw.avatar_middle || '';
+
+            return {
+              user: {
+                id: stringId,
+                name: raw.name || raw.en_name || 'Feishu User',
+                email,
+                image,
+                emailVerified: false,
+              },
+              data: raw,
+            };
+          },
+        };
+
+        return {
+          context: {
+            socialProviders: [provider, ...(ctx.socialProviders || [])],
+          },
+        };
+      },
+    });
+  }
+
   return {
     ...authOptions,
     // Add database connection only when actually needed (runtime)
@@ -201,10 +425,12 @@ export async function getAuthOptions(configs: Record<string, string>) {
         }
       : {}),
     socialProviders: await getSocialProviders(configs),
-    plugins:
-      configs.google_client_id && configs.google_one_tap_enabled === 'true'
+    plugins: [
+      ...plugins,
+      ...(configs.google_client_id && configs.google_one_tap_enabled === 'true'
         ? [oneTap()]
-        : [],
+        : []),
+    ],
   };
 }
 

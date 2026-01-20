@@ -2,6 +2,7 @@
   "groups": {
     "email_auth": "邮箱认证",
     "google_auth": "Google认证",
+    "feishu_auth": "飞书认证",
     "github_auth": "Github认证",
     "basic_payment": "基础支付",
     "stripe": "Stripe",

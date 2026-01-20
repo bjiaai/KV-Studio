@@ -2,6 +2,7 @@
   "groups": {
     "email_auth": "Email Auth",
     "google_auth": "Google Auth",
+    "feishu_auth": "Feishu Auth",
     "github_auth": "Github Auth",
     "basic_payment": "Basic Payment",
     "stripe": "Stripe",
